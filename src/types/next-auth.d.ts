@@ -1,0 +1,23 @@
+import "next-auth";
+
+declare module "next-auth" {
+  interface User {
+    role?: string;
+    dealerId?: string;
+  }
+
+  interface Session {
+    user: {
+      id?: string;
+      role?: string;
+      dealerId?: string;
+    } & import("next-auth").DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string;
+    dealerId?: string;
+  }
+}
