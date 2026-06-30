@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import { Calendar, MapPin } from "lucide-react";
 import { prisma } from "@/lib/prisma";

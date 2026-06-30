@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { MapPin, Users, Phone, Mail } from "lucide-react";
 import { prisma } from "@/lib/prisma";
