@@ -45,11 +45,11 @@ export function AnimatedCounter({
     const animate = () => {
       const now = Date.now();
       const progress = Math.min((now - startTime) / (duration * 1000), 1);
-      
+
       // Easing function (ease-out cubic)
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.floor(eased * target);
-      
+
       setCount(current);
 
       if (now < endTime) {

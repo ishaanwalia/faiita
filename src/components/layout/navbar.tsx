@@ -3,46 +3,37 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Menu,
   X,
   ChevronDown,
-  Building2,
-  Users,
-  FileText,
-  Newspaper,
-  Calendar,
-  Image as ImageIcon,
+  Shield,
   LogIn,
 } from "lucide-react";
 
-const aboutLinks = [
-  { href: "/about", label: "About FAIITA", icon: Building2 },
-  { href: "/about#constitution", label: "Constitution", icon: FileText },
-  { href: "/about#leadership", label: "Leadership", icon: Users },
-  { href: "/state-associations", label: "State Associations", icon: Users },
-];
-
-const resourcesLinks = [
-  { href: "/news", label: "News", icon: Newspaper },
-  { href: "/events", label: "Events", icon: Calendar },
-  { href: "/gallery", label: "Gallery", icon: ImageIcon },
-];
-
 const navLinks = [
-  { href: "/", label: "Home" },
+  { label: "Home", href: "/" },
   {
     label: "About",
     href: "/about",
-    dropdown: aboutLinks,
+    dropdown: [
+      { label: "About FAIITA", href: "/about" },
+      { label: "Leadership", href: "/about#leadership" },
+      { label: "State Associations", href: "/state-associations" },
+    ],
   },
   {
     label: "Resources",
-    href: "/news",
-    dropdown: resourcesLinks,
+    href: "#",
+    dropdown: [
+      { label: "News & Updates", href: "/news" },
+      { label: "Events", href: "/events" },
+      { label: "Membership", href: "/membership" },
+    ],
   },
-  { href: "/contact", label: "Contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
@@ -55,21 +46,27 @@ export function Navbar() {
     return pathname.startsWith(href);
   };
 
+  const isDropdownActive = (dropdown: { href: string }[]) => {
+    return dropdown.some((item) => pathname.startsWith(item.href));
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white text-[#0A2540] shadow-sm border-b">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <img 
-              src="/FAIITA.jpg" 
-              alt="FAIITA" 
-              className="h-10 w-auto"
-            />
+            <div className="w-10 h-10 rounded-xl bg-[#0A2540] flex items-center justify-center">
+              <span className="text-white font-bold text-sm">FI</span>
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-[#0A2540] font-bold text-sm leading-tight">FAIITA</p>
+              <p className="text-[10px] text-gray-400 leading-tight">Federation of All India IT Associations</p>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <div
                 key={link.label}
@@ -77,86 +74,134 @@ export function Navbar() {
                 onMouseEnter={() => link.dropdown && setOpenDropdown(link.label)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "flex items-center gap-1 px-4 py-2 rounded-md text-sm font-medium transition-colors",
-                    isActive(link.href)
-                      ? "text-[#FF9933]"
-                      : "text-[#0A2540] hover:text-[#FF9933]"
-                  )}
-                >
-                  {link.label}
-                  {link.dropdown && <ChevronDown className="h-3.5 w-3.5" />}
-                </Link>
-
-                {/* Dropdown */}
-                {link.dropdown && openDropdown === link.label && (
-                  <div className="absolute top-full left-0 mt-1 w-56 rounded-lg bg-white py-2 shadow-xl ring-1 ring-black/5">
-                    {link.dropdown.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#0A2540]"
-                      >
-                        <item.icon className="h-4 w-4 text-[#FF9933]" />
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
+                {!link.dropdown ? (
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      isActive(link.href)
+                        ? "text-[#FF9933] bg-[#FF9933]/5"
+                        : "text-gray-600 hover:text-[#0A2540] hover:bg-gray-50"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                        isDropdownActive(link.dropdown) || openDropdown === link.label
+                          ? "text-[#FF9933] bg-[#FF9933]/5"
+                          : "text-gray-600 hover:text-[#0A2540] hover:bg-gray-50"
+                      )}
+                    >
+                      {link.label}
+                      <ChevronDown
+                        className={cn(
+                          "w-3.5 h-3.5 transition-transform duration-200",
+                          openDropdown === link.label && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    {openDropdown === link.label && (
+                      <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                        {link.dropdown.map((item) => (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            className={cn(
+                              "flex items-center px-4 py-2.5 text-sm transition-colors",
+                              isActive(item.href)
+                                ? "text-[#FF9933] bg-[#FF9933]/5 font-medium"
+                                : "text-gray-600 hover:text-[#0A2540] hover:bg-gray-50"
+                            )}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
-
-            {/* Login */}
-            <Link
-              href="/login"
-              className="ml-2 flex items-center gap-2 rounded-md bg-[#0A2540] px-4 py-2 text-sm font-medium text-white hover:bg-[#0A2540]/90 transition-colors"
-            >
-              <LogIn className="h-4 w-4" />
-              Member Login
-            </Link>
           </nav>
+
+          {/* Right Side */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/login">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "text-sm font-medium transition-colors",
+                  isActive("/login")
+                    ? "text-[#FF9933] bg-[#FF9933]/5"
+                    : "text-gray-600 hover:text-[#0A2540]"
+                )}
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Member Login
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button
+                size="sm"
+                className="bg-[#FF9933] hover:bg-[#e68a2e] text-white rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-[#FF9933]/20"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Contact Us
+              </Button>
+            </Link>
+          </div>
 
           {/* Mobile Toggle */}
           <button
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-50"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100"
           >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-4 space-y-1">
+        <div className="md:hidden border-t border-gray-100 bg-white animate-in slide-in-from-top-2 duration-200">
+          <div className="px-4 py-4 space-y-1">
             {navLinks.map((link) => (
               <div key={link.label}>
-                <Link
-                  href={link.href}
-                  onClick={() => !link.dropdown && setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium",
-                    isActive(link.href)
-                      ? "text-[#FF9933]"
-                      : "text-[#0A2540] hover:bg-gray-50"
-                  )}
-                >
-                  {link.label}
-                  {link.dropdown && <ChevronDown className="h-4 w-4" />}
-                </Link>
-                {link.dropdown && (
-                  <div className="ml-4 mt-1 space-y-1">
+                {!link.dropdown ? (
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                      isActive(link.href)
+                        ? "text-[#FF9933] bg-[#FF9933]/5"
+                        : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                      {link.label}
+                    </p>
                     {link.dropdown.map((item) => (
                       <Link
-                        key={item.href}
+                        key={item.label}
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50 hover:text-[#0A2540]"
+                        className={cn(
+                          "flex items-center px-3 py-2 rounded-lg text-sm transition-colors ml-2",
+                          isActive(item.href)
+                            ? "text-[#FF9933] bg-[#FF9933]/5 font-medium"
+                            : "text-gray-600 hover:bg-gray-50"
+                        )}
                       >
-                        <item.icon className="h-4 w-4 text-[#FF9933]" />
                         {item.label}
                       </Link>
                     ))}
@@ -164,14 +209,20 @@ export function Navbar() {
                 )}
               </div>
             ))}
-            <Link
-              href="/login"
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 mt-3 rounded-md bg-[#0A2540] px-3 py-2.5 text-sm font-medium text-white"
-            >
-              <LogIn className="h-4 w-4" />
-              Member Login
-            </Link>
+            <div className="pt-3 border-t border-gray-100 mt-3 space-y-2">
+              <Link href="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full justify-start text-sm">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Member Login
+                </Button>
+              </Link>
+              <Link href="/contact" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full bg-[#FF9933] hover:bg-[#e68a2e] text-white text-sm">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Contact Us
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       )}
