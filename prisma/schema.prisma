@@ -7,164 +7,87 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum MembershipTier {
-  BASIC
-  STATE
-  PREMIUM
-  NATIONAL
-}
-
-enum VerificationStatus {
-  PENDING
-  VERIFIED
-  REJECTED
-}
+// ─── ENUMS ─────────────────────────────────────────────
 
 enum UserRole {
-  DEALER
   ADMIN
+  GB_MEMBER   // Governing Body Member
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+enum OfficeBearerRole {
+  PRESIDENT
+  SR_VP
+  VP
+  SECRETARY
+  TREASURER
+  JOINT_SECRETARY
+  JOINT_TREASURER
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// ─── USER (for GB member logins only) ──────────────────
 
 model User {
   id            String    @id @default(cuid())
-  name          String?
+  name          String
   email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  role          UserRole  @default(DEALER)
-  password      String?   @db.Text
-  accounts      Account[]
-  sessions      Session[]
-  dealer        Dealer?
+  password      String    @db.Text
+  role          UserRole  @default(GB_MEMBER)
+  isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// ─── OFFICE BEARER (Leadership Team) ───────────────────
 
-  @@unique([identifier, token])
+model OfficeBearer {
+  id          String           @id @default(cuid())
+  role        OfficeBearerRole
+  name        String
+  phone       String
+  email       String
+  tenureStart DateTime
+  tenureEnd   DateTime?
+  photoUrl    String?
+  isActive    Boolean          @default(true)
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
-model Dealer {
-  id                 String             @id @default(cuid())
-  slug               String             @unique
-  userId             String             @unique
-  businessName       String
-  logo               String?
-  gstNumber          String?            @unique
-  panNumber          String?
-  address            String
-  city               String
-  state              String
-  pincode            String
-  phone              String
-  email              String
-  website            String?
-  whatsapp           String?
-  description        String?            @db.Text
-  categories         String[]
-  brands             String[]
-  yearsInBusiness    Int?
-  showroomPhotos     String[]
-  socialLinks        Json?
-  latitude           Float?
-  longitude          Float?
-  verificationStatus VerificationStatus @default(PENDING)
-  membershipTier     MembershipTier     @default(BASIC)
-  membershipExpiry   DateTime?
-  isActive           Boolean            @default(true)
-  featured           Boolean            @default(false)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+// ─── GOVERNING BODY MEMBER (State Representatives) ─────
 
-  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviews       Review[]
-  events        EventRegistration[]
-  payments      Payment[]
-  contactLeads  ContactLead[]
+model GoverningBodyMember {
+  id              String   @id @default(cuid())
+  state           String
+  name            String
+  associationName String
+  phone           String
+  email           String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-model Review {
-  id         String   @id @default(cuid())
-  dealerId   String
-  name       String
-  email      String
-  rating     Int
-  comment    String   @db.Text
-  isApproved Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  dealer     Dealer   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+// ─── STATE ASSOCIATION (25 States) ─────────────────────
+
+model StateAssociation {
+  id              String   @id @default(cuid())
+  state           String   @unique
+  city            String
+  associationName String
+  presidentName   String
+  memberCount     Int      @default(0)
+  phone           String
+  email           String
+  website         String?
+  logoUrl         String?
+  description     String?  @db.Text
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-model Event {
-  id            String              @id @default(cuid())
-  title         String
-  slug          String              @unique
-  description   String              @db.Text
-  image         String?
-  startDate     DateTime
-  endDate       DateTime?
-  location      String
-  isOnline      Boolean             @default(false)
-  meetingLink   String?
-  status        String              @default("upcoming")
-  createdAt     DateTime            @default(now())
-  registrations EventRegistration[]
-}
-
-model EventRegistration {
-  id        String   @id @default(cuid())
-  eventId   String
-  dealerId  String
-  createdAt DateTime @default(now())
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  dealer    Dealer   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
-
-  @@unique([eventId, dealerId])
-}
-
-model Payment {
-  id                String   @id @default(cuid())
-  dealerId          String
-  amount            Decimal
-  currency          String   @default("INR")
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  status            String   @default("created")
-  purpose           String   @default("membership")
-  createdAt         DateTime @default(now())
-  dealer            Dealer   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
-}
+// ─── NEWS ARTICLE ──────────────────────────────────────
 
 model NewsArticle {
   id          String   @id @default(cuid())
@@ -177,29 +100,36 @@ model NewsArticle {
   author      String?
   publishedAt DateTime @default(now())
   isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model StateAssociation {
-  id            String  @id @default(cuid())
-  name          String
-  state         String
-  city          String
-  presidentName String
-  phone         String
-  email         String
-  website       String?
-  memberCount   Int?
-  logo          String?
-  description   String? @db.Text
+// ─── EVENT ─────────────────────────────────────────────
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String    @db.Text
+  image       String?
+  startDate   DateTime
+  endDate     DateTime?
+  location    String
+  isOnline    Boolean   @default(false)
+  meetingLink String?
+  status      String    @default("upcoming") // upcoming | past | cancelled
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
+
+// ─── CONTACT LEAD (public contact form submissions) ────
 
 model ContactLead {
   id        String   @id @default(cuid())
-  dealerId  String
   name      String
   email     String
-  phone     String
+  phone     String?
   message   String   @db.Text
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-  dealer    Dealer   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
 }

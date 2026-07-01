@@ -1,57 +1,63 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Check } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MEMBERSHIP_TIERS } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Membership | FAIITA",
-  description: "Join FAIITA and choose a membership tier that fits your business needs.",
+  description: "FAIITA membership information for state IT associations",
 };
 
 export default function MembershipPage() {
   return (
-    <div className="container mx-auto px-4 py-12 lg:px-8">
-      <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-[#0A2540] sm:text-4xl">
-          FAIITA Membership
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Choose a membership plan and become part of India&apos;s largest network
-          of IT entrepreneurs.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center mb-12">
+          <h1 className="text-3xl font-bold text-[#1e3a5f]">Membership Information</h1>
+          <p className="mt-4 text-muted-foreground">
+            FAIITA is a federation of state-level IT associations. We do not offer direct individual or company memberships.
+          </p>
+        </div>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {MEMBERSHIP_TIERS.map((tier) => (
-          <Card key={tier.id} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-[#0A2540]">{tier.name}</CardTitle>
-              <p className="text-2xl font-bold">
-                {tier.price === 0 ? "Free" : `₹${tier.price.toLocaleString("en-IN")}`}
-              </p>
-              <p className="text-sm text-muted-foreground">{tier.description}</p>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <ul className="space-y-2">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <div className="p-6 pt-0">
-              <Link href="/register" className="w-full">
-                <Button className="w-full bg-[#FF9933] text-white hover:bg-[#FF9933]/90">
-                  Select {tier.name}
-                </Button>
-              </Link>
-            </div>
-          </Card>
-        ))}
+        <div className="grid gap-8 md:grid-cols-2">
+          <div className="bg-white rounded-lg p-8 border">
+            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">For State Associations</h2>
+            <p className="text-muted-foreground mb-4">
+              State IT associations and federations can apply for membership with FAIITA. 
+              Each state has one representative on the Governing Body.
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">✓ Full voting rights</li>
+              <li className="flex items-center gap-2">✓ Governing Body representation</li>
+              <li className="flex items-center gap-2">✓ Access to national events</li>
+              <li className="flex items-center gap-2">✓ Policy advocacy support</li>
+            </ul>
+            <Link
+              href="/contact"
+              className="mt-6 inline-block px-4 py-2 bg-[#1e3a5f] text-white rounded-md text-sm hover:bg-[#152d4a] transition-colors"
+            >
+              Contact for Membership
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-lg p-8 border">
+            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Indirect Members</h2>
+            <p className="text-muted-foreground mb-4">
+              Individual IT dealers and companies that are members of state associations 
+              affiliated with FAIITA are considered indirect members.
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">✓ Access to FAIITA events</li>
+              <li className="flex items-center gap-2">✓ Industry updates and newsletters</li>
+              <li className="flex items-center gap-2">✓ Training program access</li>
+              <li className="flex items-center gap-2">✓ No voting rights (through state association)</li>
+            </ul>
+            <Link
+              href="/state-associations"
+              className="mt-6 inline-block px-4 py-2 bg-[#2d8a4e] text-white rounded-md text-sm hover:bg-[#236b3d] transition-colors"
+            >
+              Find Your State Association
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

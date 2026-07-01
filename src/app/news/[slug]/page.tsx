@@ -1,63 +1,51 @@
-export const dynamic = "force-dynamic";
-
-import { notFound } from "next/navigation";
-import { Calendar } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { Badge } from "@/components/ui/badge";
+import { notFound } from "next/navigation";
+import { Calendar, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-interface NewsArticlePageProps {
-  params: Promise<{ slug: string }>;
+export const dynamic = "force-static";
+
+export async function generateStaticParams() {
+  const articles = await prisma.newsArticle.findMany({
+    select: { slug: true },
+  });
+  return articles.map((a) => ({ slug: a.slug }));
 }
 
-export async function generateMetadata({ params }: NewsArticlePageProps) {
+export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await prisma.newsArticle.findUnique({ where: { slug } });
-  if (!article) return {};
-  return {
-    title: `${article.title} | FAIITA News`,
-    description: article.excerpt,
-  };
-}
+  
+  const article = await prisma.newsArticle.findUnique({
+    where: { slug },
+  });
 
-export default async function NewsArticlePage({ params }: NewsArticlePageProps) {
-  const { slug } = await params;
-  const article = await prisma.newsArticle.findUnique({ where: { slug } });
-
-  if (!article || !article.isPublished) {
-    notFound();
-  }
+  if (!article) return notFound();
 
   return (
-    <article className="container mx-auto px-4 py-12 lg:px-8">
-      <div className="mx-auto max-w-3xl">
-        <Badge variant="secondary">{article.category}</Badge>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#0A2540] sm:text-4xl">
-          {article.title}
-        </h1>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <Link href="/news" className="inline-flex items-center text-sm text-[#1e3a5f] hover:underline mb-6">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to News
+        </Link>
+        
+        <h1 className="text-3xl font-bold text-[#1e3a5f]">{article.title}</h1>
+        
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          {article.publishedAt.toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-          {article.author && <span>&middot; {article.author}</span>}
+          {new Date(article.publishedAt).toLocaleDateString("en-IN")}
+          {article.category && (
+            <span className="px-2 py-0.5 bg-gray-200 rounded text-xs">{article.category}</span>
+          )}
         </div>
 
-        {article.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={article.image}
-            alt={article.title}
-            className="mt-8 aspect-video w-full rounded-xl object-cover"
-          />
-        )}
-
-        <div className="prose prose-lg mt-8 max-w-none text-muted-foreground">
-          <p className="font-medium text-foreground">{article.excerpt}</p>
-          <div className="mt-6 whitespace-pre-line">{article.content}</div>
+        <div className="mt-8 bg-white rounded-lg p-8 border">
+          <p className="text-muted-foreground leading-relaxed">{article.excerpt}</p>
+          <div className="mt-6 text-muted-foreground leading-relaxed whitespace-pre-line">
+            {article.content}
+          </div>
         </div>
       </div>
-    </article>
+    </div>
   );
 }

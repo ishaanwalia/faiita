@@ -126,5 +126,108 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ─── FAIITA CUSTOM COLORS ───────────────────────────── */
+:root {
+  --faiita-primary: #1e3a5f;
+  --faiita-accent: #2d8a4e;
+}
+
+/* ─── CUSTOM ANIMATIONS ─────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-count-up {
+  animation: countUp 1s ease-out forwards;
+}
+
+/* ─── SCROLL ANIMATION UTILITIES ────────────────────── */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── NAVBAR DROPDOWN ANIMATION ─────────────────────── */
+.dropdown-enter {
+  animation: dropdownEnter 0.15s ease-out forwards;
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── STAT COUNTER STYLES ───────────────────────────── */
+.stat-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ─── TESTIMONIAL CAROUSEL ──────────────────────────── */
+@keyframes scrollLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.carousel-scroll {
+  animation: scrollLeft 30s linear infinite;
+}
+
+.carousel-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* ─── RESPONSIVE UTILITIES ──────────────────────────── */
+@media (max-width: 640px) {
+  .container-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ─── ACCESSIBILITY ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
