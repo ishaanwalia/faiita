@@ -240,6 +240,13 @@ Applications for the scheme open on August 1, 2026. Selected companies will be n
   },
 ];
 
+// REQUIRED for static export: generate all possible slugs at build time
+export async function generateStaticParams() {
+  return newsArticles.map((article) => ({
+    slug: article.slug,
+  }));
+}
+
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const { slug } = await params;
   const article = newsArticles.find((a) => a.slug === slug);

@@ -146,6 +146,13 @@ Topics include e-invoicing, e-way bills, return filing, and input credit claims.
   },
 ];
 
+// REQUIRED for static export: generate all possible slugs at build time
+export async function generateStaticParams() {
+  return events.map((event) => ({
+    slug: event.slug,
+  }));
+}
+
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
   const event = events.find((e) => e.slug === slug);
